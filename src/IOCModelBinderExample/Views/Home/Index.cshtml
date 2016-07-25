@@ -1,0 +1,24 @@
+﻿@model IOCModelBinderExample.ViewModels.HomeViewModel
+
+@if (Model.SelectedCustomer != null)
+{
+    <h3>Selected Customer</h3>
+    <table style="width: 50%; margin-bottom: 20px;">
+        <thead><tr><th>ID</th><th>Name</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>@Model.SelectedCustomer.ID</td>
+                <td>@Model.SelectedCustomer.Name</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+
+<form asp-controller="Home" asp-action="Index">
+    <label>Enter Customer ID (any number > 0):</label>
+    <div class="form-group">
+        <input asp-for="ID" class="form-control"  />
+    </div>
+    <input type="submit" class="btn btn-primary" /> 
+</form>

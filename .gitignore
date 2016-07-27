@@ -6,3 +6,4 @@
 /src/IOCModelBinderExample/wwwroot/lib
 /src/IOCModelBinderExample/IOCModelBinderExample.xproj.user
 /src/IOCModelBinderExample/project.lock.json
+/.vs

@@ -9,5 +9,10 @@ namespace IOCModelBinderExample.Controllers
         {
             return View(model);
         }
+
+        public IActionResult Test(NonIOCViewModel model)
+        {
+            return View("Index", model);
+        }
     }
 }

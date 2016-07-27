@@ -4,9 +4,11 @@ using IOCModelBinderExample.Infrastructure;
 using IOCModelBinderExample.ViewModels;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
+using Microsoft.AspNet.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace IOCModelBinderExample
 {
@@ -69,7 +71,14 @@ namespace IOCModelBinderExample
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
-            services.AddMvc().AddMvcOptions(options => options.ModelBinders.Insert(0, new IocModelBinder()));
+            services.AddMvc().AddMvcOptions(options =>
+            {
+                //options.ModelBinders.Insert(0, new IocModelBinder());
+                IModelBinder originalBinder = options.ModelBinders.FirstOrDefault(x => x.GetType() == typeof(MutableObjectModelBinder));
+                int originalBinderIndex = options.ModelBinders.IndexOf(originalBinder);
+                options.ModelBinders.Remove(originalBinder);
+                options.ModelBinders.Insert(originalBinderIndex, new IocModelBinder(options.ModelBinders));
+            });
 
             // My type registrations (typically autoregisted in Autofac)
             services.AddTransient<ICustomerRepository, CustomerRepository>();

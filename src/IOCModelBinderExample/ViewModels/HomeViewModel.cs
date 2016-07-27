@@ -2,7 +2,7 @@
 
 namespace IOCModelBinderExample.ViewModels
 {
-    public class HomeViewModel
+    public class HomeViewModel : ICustomerViewModel
     {
         private readonly ICustomerRepository repository;
         private ICustomer customer;

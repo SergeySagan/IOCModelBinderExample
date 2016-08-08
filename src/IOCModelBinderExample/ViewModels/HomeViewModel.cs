@@ -1,15 +1,14 @@
 ﻿using IOCModelBinderExample.Contracts;
+using IOCModelBinderExample.Domain;
 
 namespace IOCModelBinderExample.ViewModels
 {
     public class HomeViewModel
     {
-        private readonly ICustomerRepository repository;
         private ICustomer customer;
 
-        public HomeViewModel(ICustomerRepository repository)
+        public HomeViewModel()
         {
-            this.repository = repository;
         }
 
         public long ID { get; set; }
@@ -20,7 +19,12 @@ namespace IOCModelBinderExample.ViewModels
             {
                 if (ID == 0) return null;
 
-                return customer ?? (customer = repository.GetByID(ID));
+                return customer ?? (customer = new Customer { ID = ID, Name = "Customer Number #" + ID });
+            }
+
+            set
+            {
+                customer = value;
             }
         }
     }

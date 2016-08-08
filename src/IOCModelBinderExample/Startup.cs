@@ -1,6 +1,5 @@
 ﻿using IOCModelBinderExample.Contracts;
 using IOCModelBinderExample.Domain;
-using IOCModelBinderExample.Infrastructure;
 using IOCModelBinderExample.ViewModels;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
@@ -69,14 +68,15 @@ namespace IOCModelBinderExample
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
-            services.AddMvc().AddMvcOptions(options => options.ModelBinders.Insert(0, new IocModelBinder()));
+            services.AddMvc();
+            //.AddMvcOptions(options => options.ModelBinders.Insert(0, new IocModelBinder()));
 
             // My type registrations (typically autoregisted in Autofac)
-            services.AddTransient<ICustomerRepository, CustomerRepository>();
-            services.AddTransient<ICustomer, Customer>();
+            //services.AddTransient<ICustomerRepository, CustomerRepository>();
+            //services.AddTransient<ICustomer, Customer>();
 
             // ViewModels (typically autoregisted in Autofac)
-            services.AddTransient<HomeViewModel, HomeViewModel>();
+            //services.AddTransient<HomeViewModel, HomeViewModel>();
         }
     }
 }

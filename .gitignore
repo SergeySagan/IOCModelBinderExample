@@ -2,8 +2,8 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/src/IOCModelBinderExample/node_modules
-/src/IOCModelBinderExample/wwwroot/lib
-/src/IOCModelBinderExample/IOCModelBinderExample.xproj.user
-/src/IOCModelBinderExample/project.lock.json
-/.vs/**/*
+/src/IOCModelBinderExample/bin/
+/src/IOCModelBinderExample/obj/
+/src/IOCModelBinderExample/wwwroot/lib/
+/.vs/
+project.lock.json

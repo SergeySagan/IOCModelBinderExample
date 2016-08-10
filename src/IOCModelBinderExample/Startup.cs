@@ -1,12 +1,18 @@
-﻿using IOCModelBinderExample.Contracts;
-using IOCModelBinderExample.Domain;
-using IOCModelBinderExample.Infrastructure;
-using IOCModelBinderExample.ViewModels;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using IOCModelBinderExample.Contracts;
+using IOCModelBinderExample.ViewModels;
+using IOCModelBinderExample.Domain;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using IOCModelBinderExample.Infrastructure;
 
 namespace IOCModelBinderExample
 {
@@ -14,23 +20,35 @@ namespace IOCModelBinderExample
     {
         public Startup(IHostingEnvironment env)
         {
-            // Set up configuration sources.
             var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
-
-            if (env.IsDevelopment())
-            {
-                // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
-                builder.AddApplicationInsightsSettings(developerMode: true);
-            }
             Configuration = builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; set; }
+        public IConfigurationRoot Configuration { get; }
 
-        // Entry point for the application.
-        public static void Main(string[] args) => WebApplication.Run<Startup>(args);
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // Add framework services.
+            services.AddMvc().AddMvcOptions(options =>
+            {
+                IModelBinderProvider originalProvider = options.ModelBinderProviders.FirstOrDefault(x => x.GetType() == typeof(ComplexTypeModelBinderProvider));
+                int originalBinderIndex = options.ModelBinderProviders.IndexOf(originalProvider);
+                options.ModelBinderProviders.Remove(originalProvider);
+                options.ModelBinderProviders.Insert(originalBinderIndex, new IocModelBinderProvider());
+            });
+
+            // My type registrations (typically autoregisted in Autofac)
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
+            services.AddTransient<ICustomer, Customer>();
+
+            // ViewModels (typically autoregisted in Autofac)
+            services.AddTransient<HomeViewModel, HomeViewModel>();
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -38,21 +56,15 @@ namespace IOCModelBinderExample
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseApplicationInsightsRequestTelemetry();
-
             if (env.IsDevelopment())
             {
-                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
-            app.UseIISPlatformHandler();
-
-            app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseStaticFiles();
 
@@ -62,21 +74,6 @@ namespace IOCModelBinderExample
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-        }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // Add framework services.
-            services.AddApplicationInsightsTelemetry(Configuration);
-            services.AddMvc().AddMvcOptions(options => options.ModelBinders.Insert(0, new IocModelBinder()));
-
-            // My type registrations (typically autoregisted in Autofac)
-            services.AddTransient<ICustomerRepository, CustomerRepository>();
-            services.AddTransient<ICustomer, Customer>();
-
-            // ViewModels (typically autoregisted in Autofac)
-            services.AddTransient<HomeViewModel, HomeViewModel>();
         }
     }
 }

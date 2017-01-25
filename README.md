@@ -1,2 +1,2 @@
 # IOCModelBinderExample
-C# MVC ASP.NET Core IOC/Dependecy Enjection Model Binder example.
+C# MVC ASP.NET Core IOC/Dependecy Injection Model Binder example.
